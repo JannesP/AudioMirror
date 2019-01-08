@@ -1,0 +1,144 @@
+;
+; AudioMirror.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class = Media
+ClassGuid = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider=%OrganizationName% ; defined later in Strings section
+CatalogFile=AudioMirror.cat
+DriverVer= ; set DriverVer in stampinf property pages
+DriverPackageDisplayName=%DriverDisplayName%
+
+[DestinationDirs]
+DefaultDestDir = 12 ; DIRID_DRIVERS
+AudioMirror_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+AudioMirror.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%OrganizationName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%AudioMirror.DeviceDesc%=AudioMirror_Device, Root\AudioMirror
+
+[AudioMirror_Device.NT]
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration, WDMAUDIO.Registration
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+AudioMirror.sys
+
+;-------------- Service installation
+[AudioMirror_Device.NT.Services]
+AddService = AudioMirror,%SPSVCINST_ASSOCSERVICE%, AudioMirror_Service_Inst
+
+; -------------- AudioMirror driver install sections
+[AudioMirror_Service_Inst]
+DisplayName    = %AudioMirror.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\AudioMirror.sys
+
+
+; ------------- Capture device
+[AudioMirror.Interface.WaveCaptureTemplate]
+AddReg=AudioMirror.Interface.WaveCaptureTemplate.AddReg
+
+[AudioMirror.Interface.WaveCaptureTemplate.AddReg]
+HKR,,CLSID,,%KSProxy.CLSID%
+HKR,,FriendlyName,,%AudioMirror.WaveCapture.FriendlyName%
+
+[AudioMirror.Interface.TopologyCaptureTemplate]
+AddReg=AudioMirror.Interface.TopologyCaptureTemplate.AddReg
+
+[AudioMirror.Interface.TopologyCaptureTemplate.AddReg]
+HKR,,CLSID,,%KSProxy.CLSID%
+HKR,,FriendlyName,,%AudioMirror.TopologyCapture.FriendlyName%
+; The following lines opt-in to pull mode.
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+; ------------- Render device
+[AudioMirror.Interface.WaveRenderTemplate]
+AddReg=AudioMirror.Interface.WaveRenderTemplate.AddReg
+[AudioMirror.Interface.WaveRenderTemplate.AddReg]
+HKR,,CLSID,,%KSProxy.CLSID%
+HKR,,FriendlyName,,%AudioMirror.WaveRender.FriendlyName%
+
+[AudioMirror.Interface.TopologyRenderTemplate]
+AddReg=AudioMirror.Interface.TopologyRenderTemplate.AddReg
+[AudioMirror.Interface.TopologyRenderTemplate.AddReg]
+HKR,,CLSID,,%KSProxy.CLSID%
+HKR,,FriendlyName,,%AudioMirror.TopologyRender.FriendlyName%
+; The following lines opt-in to pull mode.
+HKR,EP\0,%PKEY_AudioEndpoint_Association%,,%KSNODETYPE_ANY%
+HKR,EP\0,%PKEY_AudioEndpoint_Supports_EventDriven_Mode%,0x00010001,0x1
+
+
+[AudioMirror_Device.NT.Interfaces]
+; -------------- Interface template definition
+; Capture
+AddInterface=%KSCATEGORY_AUDIO%,    %KSNAME_WaveCapture%, AudioMirror.Interface.WaveCaptureTemplate
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveCapture%, AudioMirror.Interface.WaveCaptureTemplate
+AddInterface=%KSCATEGORY_CAPTURE%,  %KSNAME_WaveCapture%, AudioMirror.Interface.WaveCaptureTemplate
+AddInterface=%KSCATEGORY_AUDIO%,    %KSNAME_TopologyCapture%, AudioMirror.Interface.TopologyCaptureTemplate
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopologyCapture%, AudioMirror.Interface.TopologyCaptureTemplate
+
+; Render
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_WaveRender%, AudioMirror.Interface.WaveRenderTemplate
+AddInterface=%KSCATEGORY_RENDER%, %KSNAME_WaveRender%, AudioMirror.Interface.WaveRenderTemplate
+AddInterface=%KSCATEGORY_REALTIME%, %KSNAME_WaveRender%, AudioMirror.Interface.WaveRenderTemplate
+AddInterface=%KSCATEGORY_AUDIO%, %KSNAME_TopologyRender%, AudioMirror.Interface.TopologyRenderTemplate
+AddInterface=%KSCATEGORY_TOPOLOGY%, %KSNAME_TopologyRender%, AudioMirror.Interface.TopologyRenderTemplate
+
+[AudioMirror_Device.NT.Wdf]
+KmdfService =  AudioMirror, AudioMirror_wdfsect
+[AudioMirror_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+OrganizationName="Jannes Peters"
+DriverDisplayName="AudioMirror Drivers"
+DiskName="AudioMirror Installation Disk"
+AudioMirror.DeviceDesc="AudioMirror Virtual Device"
+AudioMirror.SVCDESC="AudioMirror Service"
+
+AudioMirror.WaveCapture.FriendlyName="AudioMirror Wave Input"
+AudioMirror.TopologyCapture.FriendlyName="AudioMirror Topology Input"
+
+AudioMirror.WaveRender.FriendlyName="AudioMirror Wave Output"
+AudioMirror.TopologyRender.FriendlyName="AudioMirror Topology Output"
+
+;non-localizable
+KSNAME_WaveCapture="WaveCaptureTemplate"
+KSNAME_TopologyCapture="TopologyCaptureTemplate"
+
+KSNAME_WaveRender="WaveRenderTemplate"
+KSNAME_TopologyRender="TopologyRenderTemplate"
+
+KSNODETYPE_ANY   = "{00000000-0000-0000-0000-000000000000}"
+
+KSProxy.CLSID="17CCA71B-ECD7-11D0-B908-00A0C9223196"
+KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
+KSCATEGORY_RENDER="{65E8773E-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_REALTIME ="{EB115FFC-10C8-4964-831D-6DCB02E6F23F}"
+KSCATEGORY_TOPOLOGY = "{DDA54A40-1E4C-11D1-A050-405705C10000}"
+
+PKEY_AudioEndpoint_Association               = "{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},2"
+PKEY_AudioEndpoint_Supports_EventDriven_Mode = "{1DA5D803-D492-4EDD-8C23-E0C0FFEE7F0E},7"

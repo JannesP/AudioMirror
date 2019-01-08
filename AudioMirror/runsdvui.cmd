@@ -1,0 +1,2 @@
+cd /d "C:\Users\Jannes Peters\Documents\Visual Studio 2017\Projects\Bachelor Thesis\vs_project\AudioMirror" &msbuild "AudioMirror.vcxproj" /t:sdvViewer /p:configuration="Release" /p:platform="x64" /p:SolutionDir="C:\Users\Jannes Peters\Documents\Visual Studio 2017\Projects\Bachelor Thesis\vs_project" 
+exit %errorlevel% 
