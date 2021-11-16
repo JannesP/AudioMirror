@@ -1,3 +1,6 @@
+This driver isn't finished and has a few quirks. If you want a build and ship ready solution this is sadly not what you were looking for.
+### You've been warned.
+
 An audio driver for Windows 10 (only tested on x64) that works as a virtual audio cable. Adds a virtual speaker that routes all played audio into a virtual microphone device.
 
 As for documentation ... there's not much out there, at least I couldn't find it. 
