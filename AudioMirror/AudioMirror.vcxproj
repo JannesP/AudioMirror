@@ -151,10 +151,14 @@
       <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(OutputPath)$(AssemblyName)" "F:\Programs\VirtualBox VMs\Shared\kmdf_files" /y /e
-</Command>
-      <Message>Copying driver files to VBox share</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
+    <DriverSign>
+      <FileDigestAlgorithm>SHA256</FileDigestAlgorithm>
+    </DriverSign>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Inf Include="AudioMirror.inf" />
