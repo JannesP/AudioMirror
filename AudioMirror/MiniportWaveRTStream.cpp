@@ -97,7 +97,10 @@ Return Value:
 		//
 		KeFlushQueuedDpcs();
 	}
-
+	if (m_PairedStream) {
+		m_PairedStream->SetPairedStream(NULL);
+		m_PairedStream = NULL;
+	}
 	DPF_ENTER(("[MiniportWaveRTStream::~MiniportWaveRTStream]"));
 } // ~MiniportWaveRTStream
 
